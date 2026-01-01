@@ -4,7 +4,7 @@
 
 Please do not report security vulnerabilities through public GitHub issues.
 
-Instead, open a GitHub Security Advisory (preferred) or contact the maintainers privately.
+Instead, open a GitHub Security Advisory (preferred) or contact the maintainers privately at security@example.com.
 
 ## Supported versions
 
