@@ -1,0 +1,510 @@
+openapi: 3.0.3
+info:
+  title: AiPowerHouse UI API
+  version: 0.1.0
+  description: |
+    A polished API for orchestrating multi-model AI workflows. 
+    The interface highlights routing playbooks, governance controls, 
+    and a curated roster of leading AI platforms.
+  contact:
+    email: api@aipowerhouse.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+  - url: https://staging.aipowerhouse.dev/api/v1
+    description: Staging server
+  - url: https://api.aipowerhouse.dev/api/v1
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: AI
+    description: AI provider operations
+  - name: Sessions
+    description: Session management
+  - name: Governance
+    description: Governance and compliance
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: 0.1.0
+                  environment:
+                    type: string
+                    example: production
+
+  /ai/prompt:
+    post:
+      summary: Send prompt to AI providers
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+              properties:
+                prompt:
+                  type: string
+                  description: The prompt to send to AI
+                  example: "Explain quantum computing"
+                context:
+                  type: string
+                  description: Additional context for the prompt
+                  example: "You are a physics professor"
+                providerId:
+                  type: string
+                  description: Specific provider to use
+                  enum: [chatgpt, claude, gemini, grok]
+                routing:
+                  type: string
+                  description: Routing strategy
+                  enum: [primary, fallback, consensus, load_balance, latency_optimized, cost_optimized]
+                sessionId:
+                  type: string
+                  description: Session ID to associate with
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /ai/providers:
+    get:
+      summary: Get available AI providers
+      tags: [AI]
+      security: []
+      responses:
+        '200':
+          description: List of available providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Provider'
+
+  /ai/metrics:
+    get:
+      summary: Get AI provider metrics
+      tags: [AI]
+      responses:
+        '200':
+          description: Provider metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: object
+                    properties:
+                      totalRequests:
+                        type: integer
+                      averageLatency:
+                        type: number
+                      totalTokens:
+                        type: integer
+                      errorRate:
+                        type: number
+
+  /sessions:
+    get:
+      summary: Get user sessions
+      tags: [Sessions]
+      responses:
+        '200':
+          description: List of user sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Create a new session
+      tags: [Sessions]
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/{sessionId}:
+    get:
+      summary: Get a specific session
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: '#/components/schemas/Session'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete a session
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: boolean
+
+  /sessions/{sessionId}/end:
+    post:
+      summary: End a session
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session ended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: '#/components/schemas/Session'
+
+  /governance/config:
+    get:
+      summary: Get governance configuration
+      tags: [Governance]
+      responses:
+        '200':
+          description: Governance configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/GovernanceConfig'
+
+    put:
+      summary: Update governance configuration
+      tags: [Governance]
+      security:
+        - ApiKeyAuth: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GovernanceConfig'
+      responses:
+        '200':
+          description: Configuration updated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /governance/audit-log:
+    get:
+      summary: Get audit log
+      tags: [Governance]
+      security:
+        - ApiKeyAuth: [admin]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auditLog:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditEntry'
+                  count:
+                    type: integer
+
+    delete:
+      summary: Clear audit log
+      tags: [Governance]
+      security:
+        - ApiKeyAuth: [admin]
+      responses:
+        '200':
+          description: Audit log cleared
+
+  /governance/report:
+    get:
+      summary: Export governance report
+      tags: [Governance]
+      security:
+        - ApiKeyAuth: [admin]
+      responses:
+        '200':
+          description: Governance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceReport'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    AIResponse:
+      type: object
+      properties:
+        request:
+          type: object
+          properties:
+            id:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+        response:
+          type: object
+          properties:
+            id:
+              type: string
+            content:
+              type: string
+            tokensUsed:
+              type: integer
+            latency:
+              type: integer
+            providerId:
+              type: string
+        governance:
+          type: object
+          properties:
+            requestIssues:
+              type: array
+              items:
+                type: string
+            responseIssues:
+              type: array
+              items:
+                type: string
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        available:
+          type: boolean
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [active, completed, terminated]
+        requestCount:
+          type: integer
+
+    GovernanceConfig:
+      type: object
+      properties:
+        promptFirewall:
+          type: boolean
+        humanReviewLoop:
+          type: boolean
+        dataResidency:
+          type: string
+        auditTrail:
+          type: boolean
+        complianceMode:
+          type: string
+          enum: [strict, moderate, permissive]
+
+    AuditEntry:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+        action:
+          type: string
+        details:
+          type: object
+
+    GovernanceReport:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/GovernanceConfig'
+        totalEvents:
+          type: integer
+        recentEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+        summary:
+          type: object
+          additionalProperties:
+            type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
