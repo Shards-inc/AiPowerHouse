@@ -476,7 +476,7 @@
           let visibleCount = 0;
 
           cards.forEach((card) => {
-            const title = card.querySelector("h4")?.textContent?.trim().toLowerCase() ?? "";
+            const title = card.querySelector('[data-model-name]')?.textContent?.trim().toLowerCase() ?? "";
             const capability = card.querySelector(".model-capability")?.textContent?.trim() ?? "";
             const matchesQuery = title.includes(query);
             const matchesCapability =
