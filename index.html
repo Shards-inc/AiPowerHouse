@@ -510,7 +510,9 @@
 
         if (
           !(searchInput instanceof HTMLInputElement) ||
-          !(filterButton instanceof HTMLButtonElement)
+          !(filterButton instanceof HTMLButtonElement) ||
+          !resultCount ||
+          !emptyState
         ) {
           return;
         }
