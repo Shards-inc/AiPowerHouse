@@ -532,7 +532,7 @@
           cards.forEach((card) => {
             const title = card.dataset.model ?? "";
             const capability = card.dataset.capability ?? "";
-            const matchesQuery = title.includes(query);
+            const matchesQuery = title.toLowerCase().includes(query);
             const matchesCapability =
               selectedCapability === "All" || capability === selectedCapability;
             const isVisible = matchesQuery && matchesCapability;
