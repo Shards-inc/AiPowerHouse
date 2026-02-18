@@ -123,18 +123,28 @@
             </div>
             <div class="flex items-center gap-2">
               <input
+                id="model-search"
+                aria-label="Search models"
                 class="rounded-full border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-200"
                 placeholder="Search models"
-                type="text"
+                type="search"
               />
-              <button class="rounded-full border border-slate-800 px-4 py-2 text-sm text-slate-200">
-                Filters
+              <button
+                id="capability-filter"
+                class="rounded-full border border-slate-800 px-4 py-2 text-sm text-slate-200"
+                type="button"
+              >
+                Filter: All
               </button>
             </div>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+          <div id="model-grid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="chatgpt"
+              data-capability="Primary"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">ChatGPT</h4>
                 <span class="rounded-full bg-indigo-500/20 px-2 py-1 text-xs text-indigo-200">
@@ -149,7 +159,11 @@
                 <span>Latency 148ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="claude"
+              data-capability="Strong"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Claude</h4>
                 <span class="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-200">
@@ -164,7 +178,11 @@
                 <span>Latency 162ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="gemini"
+              data-capability="Multimodal"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Gemini</h4>
                 <span class="rounded-full bg-sky-500/20 px-2 py-1 text-xs text-sky-200">
@@ -179,7 +197,11 @@
                 <span>Latency 138ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="grok"
+              data-capability="Real-time"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Grok</h4>
                 <span class="rounded-full bg-amber-500/20 px-2 py-1 text-xs text-amber-200">
@@ -194,7 +216,11 @@
                 <span>Latency 171ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="co-pilot"
+              data-capability="Dev"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Co Pilot</h4>
                 <span class="rounded-full bg-purple-500/20 px-2 py-1 text-xs text-purple-200">
@@ -209,7 +235,11 @@
                 <span>Latency 156ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="meta-ai"
+              data-capability="Social"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Meta AI</h4>
                 <span class="rounded-full bg-pink-500/20 px-2 py-1 text-xs text-pink-200">
@@ -224,7 +254,11 @@
                 <span>Latency 160ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="manus-ai"
+              data-capability="Ops"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Manus AI</h4>
                 <span class="rounded-full bg-teal-500/20 px-2 py-1 text-xs text-teal-200">
@@ -239,7 +273,11 @@
                 <span>Latency 149ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="kimi"
+              data-capability="Summarize"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Kimi</h4>
                 <span class="rounded-full bg-lime-500/20 px-2 py-1 text-xs text-lime-200">
@@ -254,7 +292,11 @@
                 <span>Latency 140ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="qwen"
+              data-capability="Data"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Qwen</h4>
                 <span class="rounded-full bg-cyan-500/20 px-2 py-1 text-xs text-cyan-200">
@@ -269,7 +311,11 @@
                 <span>Latency 152ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="deepseek"
+              data-capability="Search"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">DeepSeek</h4>
                 <span class="rounded-full bg-rose-500/20 px-2 py-1 text-xs text-rose-200">
@@ -284,7 +330,11 @@
                 <span>Latency 158ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="minimax"
+              data-capability="Scale"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Minimax</h4>
                 <span class="rounded-full bg-orange-500/20 px-2 py-1 text-xs text-orange-200">
@@ -299,7 +349,11 @@
                 <span>Latency 170ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="genspark"
+              data-capability="Research"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Genspark</h4>
                 <span class="rounded-full bg-fuchsia-500/20 px-2 py-1 text-xs text-fuchsia-200">
@@ -314,7 +368,11 @@
                 <span>Latency 164ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="perplexity"
+              data-capability="Insight"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Perplexity</h4>
                 <span class="rounded-full bg-slate-200/20 px-2 py-1 text-xs text-slate-200">
@@ -329,7 +387,11 @@
                 <span>Latency 150ms</span>
               </div>
             </article>
-            <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <article
+              class="model-card rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              data-model="mistral"
+              data-capability="Efficient"
+            >
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-semibold">Mistral</h4>
                 <span class="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-200">
@@ -345,6 +407,13 @@
               </div>
             </article>
           </div>
+          <p class="text-xs text-slate-400" id="model-result-count" aria-live="polite"></p>
+          <p
+            class="hidden rounded-2xl border border-dashed border-slate-700 p-4 text-sm text-slate-300"
+            id="model-empty-state"
+          >
+            No models matched this filter. Clear search or switch capability.
+          </p>
         </section>
 
         <section class="grid gap-6 lg:grid-cols-[1fr_1fr]">
@@ -431,5 +500,67 @@
         </div>
       </footer>
     </div>
+    <script>
+      (() => {
+        const searchInput = document.getElementById("model-search");
+        const filterButton = document.getElementById("capability-filter");
+        const resultCount = document.getElementById("model-result-count");
+        const emptyState = document.getElementById("model-empty-state");
+        const cards = Array.from(document.querySelectorAll(".model-card"));
+
+        if (
+          !(searchInput instanceof HTMLInputElement) ||
+          !(filterButton instanceof HTMLButtonElement)
+        ) {
+          return;
+        }
+
+        const capabilities = [
+          "All",
+          ...new Set(
+            cards.map((card) => card.dataset.capability).filter((capability) => Boolean(capability))
+          )
+        ];
+
+        let capabilityIndex = 0;
+
+        const applyFilters = () => {
+          const query = searchInput.value.trim().toLowerCase();
+          const selectedCapability = capabilities[capabilityIndex];
+          let visibleCount = 0;
+
+          cards.forEach((card) => {
+            const title = card.dataset.model ?? "";
+            const capability = card.dataset.capability ?? "";
+            const matchesQuery = title.includes(query);
+            const matchesCapability =
+              selectedCapability === "All" || capability === selectedCapability;
+            const isVisible = matchesQuery && matchesCapability;
+
+            card.classList.toggle("hidden", !isVisible);
+            if (isVisible) {
+              visibleCount += 1;
+            }
+          });
+
+          if (resultCount) {
+            resultCount.textContent = `${visibleCount} model${visibleCount === 1 ? "" : "s"} shown`;
+          }
+
+          if (emptyState) {
+            emptyState.classList.toggle("hidden", visibleCount !== 0);
+          }
+        };
+
+        filterButton.addEventListener("click", () => {
+          capabilityIndex = (capabilityIndex + 1) % capabilities.length;
+          filterButton.textContent = `Filter: ${capabilities[capabilityIndex]}`;
+          applyFilters();
+        });
+
+        searchInput.addEventListener("input", applyFilters);
+        applyFilters();
+      })();
+    </script>
   </body>
 </html>
