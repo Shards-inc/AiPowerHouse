@@ -463,7 +463,7 @@
           "All",
           ...new Set(
             cards
-              .map((card) => card.querySelector("span")?.textContent?.trim())
+              .map((card) => card.querySelector(".model-capability")?.textContent?.trim())
               .filter((capability) => Boolean(capability))
           )
         ];
