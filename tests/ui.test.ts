@@ -33,4 +33,15 @@ describe("UI shell", () => {
       expect(markup).toContain(label);
     }
   });
+
+  it("includes searchable and filterable model roster controls", async () => {
+    const markup = await loadMarkup();
+
+    expect(markup).toContain('id="model-search"');
+    expect(markup).toContain('id="capability-filter"');
+    expect(markup).toContain('id="model-result-count"');
+    expect(markup).toContain('id="model-empty-state"');
+    expect(markup).toContain("searchInput.addEventListener");
+    expect(markup).toContain("filterButton.addEventListener");
+  });
 });
