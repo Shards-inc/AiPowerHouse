@@ -1,5 +1,3 @@
-
-
 ## AiPowerHouse UI
 
 A polished UI shell for orchestrating multi-model AI workflows. The interface highlights
@@ -30,3 +28,22 @@ npm run lint
 npm run typecheck
 npm run test
 ```
+
+### ML CI/CD/CT workflow
+
+This repository now includes `.github/workflows/ml-cicd.yml`, which defines a
+GitHub Actions pipeline for ML operations with:
+
+- data validation gates before training,
+- reproducible training metadata + MLflow logging,
+- drift detection checks that can fail builds,
+- Kubeflow pipeline compilation/submission, and
+- automated MLflow model-registry promotion on `main`.
+
+Expected project entrypoints for this workflow live under `ml/`:
+
+- `ml/data_validation/run_validation.py`
+- `ml/training/train.py`
+- `ml/monitoring/drift_check.py`
+- `ml/pipelines/training_pipeline.py`
+- `ml/pipelines/submit_pipeline_run.py`

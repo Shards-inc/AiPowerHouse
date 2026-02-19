@@ -1,0 +1,224 @@
+name: ML CI/CD/CT
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ml-cicd.yml"
+      - "ml/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ml-cicd.yml"
+      - "ml/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  TRAINING_SEED: "42"
+  MODEL_NAME: "aipowerhouse-model"
+
+jobs:
+  data_validation:
+    name: Data validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install data quality tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install great-expectations==0.18.12 pandera==0.20.1
+
+      - name: Run schema and expectation validation
+        run: |
+          if [ -f ml/data_validation/run_validation.py ]; then
+            python ml/data_validation/run_validation.py
+          else
+            echo "Expected ml/data_validation/run_validation.py to exist." >&2
+            exit 1
+          fi
+
+      - name: Upload data quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-quality-report
+          path: ml/data_validation/reports
+          if-no-files-found: warn
+
+  training_reproducibility:
+    name: Reproducible model training
+    runs-on: ubuntu-latest
+    needs: data_validation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install training dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow==2.15.1 scikit-learn==1.5.1 numpy==1.26.4
+
+      - name: Record deterministic provenance
+        run: |
+          mkdir -p artifacts
+          git rev-parse HEAD > artifacts/git_sha.txt
+          echo "${TRAINING_SEED}" > artifacts/seed.txt
+
+      - name: Train and log to MLflow
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_TOKEN: ${{ secrets.MLFLOW_TRACKING_TOKEN }}
+        run: |
+          if [ -f ml/training/train.py ]; then
+            python ml/training/train.py \
+              --seed "${TRAINING_SEED}" \
+              --model-name "${MODEL_NAME}" \
+              --git-sha "$(cat artifacts/git_sha.txt)"
+          else
+            echo "Expected ml/training/train.py to exist." >&2
+            exit 1
+          fi
+
+      - name: Upload reproducibility artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducibility-metadata
+          path: artifacts
+
+  drift_detection:
+    name: Data and prediction drift detection
+    runs-on: ubuntu-latest
+    needs: training_reproducibility
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install drift tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install evidently==0.4.30 mlflow==2.15.1
+
+      - name: Run drift detection
+        run: |
+          if [ -f ml/monitoring/drift_check.py ]; then
+            python ml/monitoring/drift_check.py --fail-on-drift true
+          else
+            echo "Expected ml/monitoring/drift_check.py to exist." >&2
+            exit 1
+          fi
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: ml/monitoring/reports
+          if-no-files-found: warn
+
+  kubeflow_pipeline:
+    name: Compile and run Kubeflow pipeline
+    runs-on: ubuntu-latest
+    needs: drift_detection
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Kubeflow SDK
+        run: |
+          python -m pip install --upgrade pip
+          pip install kfp==2.8.0
+
+      - name: Compile pipeline
+        run: |
+          if [ -f ml/pipelines/training_pipeline.py ]; then
+            python ml/pipelines/training_pipeline.py
+          else
+            echo "Expected ml/pipelines/training_pipeline.py to exist." >&2
+            exit 1
+          fi
+
+      - name: Submit run to Kubeflow
+        env:
+          KUBEFLOW_ENDPOINT: ${{ secrets.KUBEFLOW_ENDPOINT }}
+          KUBEFLOW_TOKEN: ${{ secrets.KUBEFLOW_TOKEN }}
+        run: |
+          if [ -f ml/pipelines/submit_pipeline_run.py ]; then
+            python ml/pipelines/submit_pipeline_run.py
+          else
+            echo "Expected ml/pipelines/submit_pipeline_run.py to exist." >&2
+            exit 1
+          fi
+
+  promote_model_registry:
+    name: Promote model in MLflow registry
+    runs-on: ubuntu-latest
+    needs: kubeflow_pipeline
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install MLflow client
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow==2.15.1
+
+      - name: Promote model version to Production
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_TOKEN: ${{ secrets.MLFLOW_TRACKING_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import os
+          import mlflow
+          from mlflow.tracking import MlflowClient
+
+          mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
+          client = MlflowClient()
+
+          model_name = os.environ['MODEL_NAME']
+          run_id = os.environ['RUN_ID']
+          latest = client.search_model_versions(f"name='{model_name}'")
+          if not latest:
+            raise RuntimeError(f'No model versions found for {model_name}.')
+
+          target_version = sorted(latest, key=lambda m: int(m.version))[-1].version
+          client.transition_model_version_stage(
+            name=model_name,
+            version=target_version,
+            stage='Production',
+            archive_existing_versions=True
+          )
+          client.set_model_version_tag(model_name, target_version, 'promoted_by_run', run_id)
+          print(f'Promoted {model_name} v{target_version} to Production.')
+          PY
