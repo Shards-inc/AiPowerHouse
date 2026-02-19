@@ -1,11 +1,5 @@
-# Security policy
-
-## Reporting a vulnerability
-
-Please do not report security vulnerabilities through public GitHub issues.
-
-Instead, open a GitHub Security Advisory (preferred) or contact the maintainers privately at security@example.com.
-
-## Supported versions
-
-Security updates are provided for the latest version on the default branch.
+# Security Policy
+## 🛡️ Our Commitment
+At **Shards-inc**, we take the security of our autonomous systems seriously.
+## 📢 Reporting a Vulnerability
+If you discover a security vulnerability, please **do not open a public issue**. Instead, email **security@shards-inc.com**.
