@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload data quality reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: data-quality-report
           path: ml/data_validation/reports
@@ -97,7 +97,7 @@ jobs:
           fi
 
       - name: Upload reproducibility artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: reproducibility-metadata
           path: artifacts
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload drift report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: drift-report
           path: ml/monitoring/reports
